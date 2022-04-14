@@ -1,7 +1,8 @@
 package mydb
 
 import (
-	"log"
+	"fmt"
+	"github.com/klymenok/go-playground/utils"
 )
 
 type User struct {
@@ -13,11 +14,12 @@ type User struct {
 func (u *User) Create() {
 	db := Connection()
 	defer db.Close()
-	createUserQuery := `insert into user (first_name, last_name) values ('$1', '$2')`
-	result, err := db.Exec(createUserQuery, u.FirstName, u.LastName)
-	if err != nil {
-		log.Fatalln(err)
-	}
+	createUserQuery := fmt.Sprintf(
+		"insert into user (first_name, last_name) values ('%s', '%s')",
+		u.FirstName,
+		u.LastName)
+	result, err := db.Exec(createUserQuery)
+	utils.CheckError(err)
 	u.Id, _ = result.LastInsertId()
 }
 
@@ -25,11 +27,13 @@ func (u *User) Update() {
 	db := Connection()
 	defer db.Close()
 
-	updateUserQuery := `update user set first_name='$1', last_name='$2' where id=$3`
-	_, err := db.Exec(updateUserQuery, u.FirstName, u.LastName, u.Id)
-	if err != nil {
-		log.Fatalln(err)
-	}
+	updateUserQuery := fmt.Sprintf(
+		"update user set first_name='%s', last_name='%s' where id=%d",
+		u.FirstName,
+		u.LastName,
+		u.Id)
+	_, err := db.Exec(updateUserQuery)
+	utils.CheckError(err)
 }
 
 func GetUserById(userId int64) (User, error) {
@@ -37,8 +41,8 @@ func GetUserById(userId int64) (User, error) {
 	db := Connection()
 	defer db.Close()
 
-	getUserQuery := `select * from user where id=$1`
-	res := db.QueryRow(getUserQuery, userId)
+	getUserQuery := fmt.Sprintf("select * from user where id=%d", userId)
+	res := db.QueryRow(getUserQuery)
 	err := res.Scan(&user.Id, &user.FirstName, &user.LastName)
 	if err != nil {
 		return user, err
@@ -49,6 +53,6 @@ func GetUserById(userId int64) (User, error) {
 func DeleteUserById(userId int64) {
 	db := Connection()
 	defer db.Close()
-	deleteUserQuery := `delete from user where id=$1`
+	deleteUserQuery := fmt.Sprintf("delete from user where id=%d", userId)
 	db.Exec(deleteUserQuery, userId)
 }

@@ -1,6 +1,9 @@
 package mydb
 
-import "log"
+import (
+	"fmt"
+	"github.com/klymenok/go-playground/utils"
+)
 
 type Comment struct {
 	Id        int64  `json:"id"`
@@ -13,11 +16,13 @@ type Comment struct {
 func (c *Comment) Create() {
 	db := Connection()
 	defer db.Close()
-	createCommentQuery := `insert into comment (text, task, created_by) values ('$1', $2, $3)`
-	result, err := db.Exec(createCommentQuery, c.Text, c.Task, c.CreatedBy)
-	if err != nil {
-		log.Fatalln(err)
-	}
+	createCommentQuery := fmt.Sprintf(
+		"insert into comment (text, task, created_by) values ('%s', %d, %d)",
+		c.Text,
+		c.Task,
+		c.CreatedBy)
+	result, err := db.Exec(createCommentQuery)
+	utils.CheckError(err)
 	c.Id, _ = result.LastInsertId()
 }
 
@@ -25,11 +30,12 @@ func (c *Comment) Update() {
 	db := Connection()
 	defer db.Close()
 
-	updateCommentQuery := `update comment set text='$1' where id=$2`
-	_, err := db.Exec(updateCommentQuery, c.Text, c.Id)
-	if err != nil {
-		log.Fatalln(err)
-	}
+	updateCommentQuery := fmt.Sprintf(
+		"update comment set text='%s' where id=%d",
+		c.Text,
+		c.Id)
+	_, err := db.Exec(updateCommentQuery)
+	utils.CheckError(err)
 }
 
 func GetCommentById(commentId int64) (Comment, error) {
@@ -37,8 +43,8 @@ func GetCommentById(commentId int64) (Comment, error) {
 	db := Connection()
 	defer db.Close()
 
-	getCommentQuery := `select * from comment where id=$1`
-	res := db.QueryRow(getCommentQuery, commentId)
+	getCommentQuery := fmt.Sprintf("select * from comment where id=%d", commentId)
+	res := db.QueryRow(getCommentQuery)
 	err := res.Scan(&Comment.Id, &Comment.Text, &Comment.CreatedBy, &Comment.CreatedAt, &Comment.Task)
 	if err != nil {
 		return Comment, err
@@ -49,6 +55,6 @@ func GetCommentById(commentId int64) (Comment, error) {
 func DeleteCommentById(commentId int64) {
 	db := Connection()
 	defer db.Close()
-	deleteCommentQuery := `delete from Comment where id=$1`
-	db.Exec(deleteCommentQuery, commentId)
+	deleteCommentQuery := fmt.Sprintf("delete from Comment where id=%d", commentId)
+	db.Exec(deleteCommentQuery)
 }

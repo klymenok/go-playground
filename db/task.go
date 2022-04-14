@@ -1,6 +1,9 @@
 package mydb
 
-import "log"
+import (
+	"fmt"
+	"log"
+)
 
 type Task struct {
 	Id          int64  `json:"id"`
@@ -14,8 +17,13 @@ type Task struct {
 func (t *Task) Create() {
 	db := Connection()
 	defer db.Close()
-	createTaskQuery := `insert into task (title, description, created_by, assignee) values ('$1', '$2', $3, $4)`
-	result, err := db.Exec(createTaskQuery, t.Title, t.Description, t.CreatedBy, t.Assignee)
+	createTaskQuery := fmt.Sprintf(
+		"insert into task (title, description, created_by, assignee) values ('%s', '%s', %d, %d)",
+		t.Title,
+		t.Description,
+		t.CreatedBy,
+		t.Assignee)
+	result, err := db.Exec(createTaskQuery)
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -26,11 +34,30 @@ func (t *Task) Update() {
 	db := Connection()
 	defer db.Close()
 
-	updateTaskQuery := `update task set title='$1', description='$2', assignee=$3, completed=$4 where id=$5`
-	_, err := db.Exec(updateTaskQuery, t.Title, t.Description, t.Assignee, t.Completed, t.Id)
+	updateTaskQuery := fmt.Sprintf(
+		"update task set title='%s', description='%s', assignee=%d, completed=%t where id=%d",
+		t.Title,
+		t.Description,
+		t.Assignee,
+		t.Completed,
+		t.Id)
+	_, err := db.Exec(updateTaskQuery)
 	if err != nil {
 		log.Fatalln(err)
 	}
+}
+
+func (t *Task) Complete() {
+	db := Connection()
+	defer db.Close()
+	updateTaskQuery := fmt.Sprintf(
+		"update task set completed=True where id=%d",
+		t.Id)
+	_, err := db.Exec(updateTaskQuery)
+	if err != nil {
+		log.Fatalln(err)
+	}
+	t.Completed = true
 }
 
 func GetTaskById(taskId int64) (Task, error) {
@@ -38,9 +65,9 @@ func GetTaskById(taskId int64) (Task, error) {
 	db := Connection()
 	defer db.Close()
 
-	getTaskQuery := `select * from task where id=$1`
-	res := db.QueryRow(getTaskQuery, taskId)
-	err := res.Scan(&task.Id, &task.Title, &task.Description, &task.CreatedBy, &task.Assignee)
+	getTaskQuery := fmt.Sprintf("select * from task where id=%d", taskId)
+	res := db.QueryRow(getTaskQuery)
+	err := res.Scan(&task.Id, &task.Title, &task.Description, &task.CreatedBy, &task.Assignee, &task.Completed)
 	if err != nil {
 		return task, err
 	}
@@ -50,6 +77,6 @@ func GetTaskById(taskId int64) (Task, error) {
 func DeleteTaskById(taskId int64) {
 	db := Connection()
 	defer db.Close()
-	deleteTaskQuery := `delete from task where id=$1`
-	db.Exec(deleteTaskQuery, taskId)
+	deleteTaskQuery := fmt.Sprintf("delete from task where id=%s", taskId)
+	db.Exec(deleteTaskQuery)
 }
