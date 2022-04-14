@@ -33,16 +33,18 @@ func createDatabase(dbName string) {
 				title text, description text, 
 				created_by integer not null, 
 				assignee integer not null, 
-				completed boolean,
+				completed boolean default false,
 				FOREIGN KEY(created_by) REFERENCES user(id),
 				FOREIGN KEY(assignee) REFERENCES user(id))
 				`
 	sqlComment := `create table comment 
 				(id integer not null primary key autoincrement, 
 				text text, 
+				task integer, 
 				created_by integer, 
 				created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-				FOREIGN KEY(created_by) REFERENCES user(id))
+				FOREIGN KEY(created_by) REFERENCES user(id), 
+				FOREIGN KEY(task) REFERENCES task(id))
 				`
 	_, err := db.Exec(sqlUser)
 	if err != nil {
@@ -69,6 +71,6 @@ func Init() {
 	db.Ping()
 }
 
-func Connection() {
-
+func Connection() *sql.DB {
+	return connect(os.Getenv("DB_NAME"))
 }
