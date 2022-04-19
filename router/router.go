@@ -4,12 +4,19 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	routehandlers "github.com/klymenok/go-playground/route-handlers"
+	httpSwagger "github.com/swaggo/http-swagger"
 	"net/http"
 )
 
 func Init() http.Handler {
 	r := chi.NewRouter()
+
+	// middlewares
 	r.Use(middleware.SetHeader("Content-Type", "application/json"))
+
+	// API docs
+	r.Mount("/swagger", httpSwagger.WrapHandler)
+
 	r.Mount("/users/", userRouter())
 	r.Mount("/tasks/", taskRouter())
 	r.Mount("/comments/", commentRouter())

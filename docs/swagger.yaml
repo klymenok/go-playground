@@ -1,0 +1,508 @@
+basePath: /
+definitions:
+  mydb.Comment:
+    properties:
+      created_at:
+        type: string
+      created_by:
+        type: integer
+      id:
+        type: integer
+      task:
+        type: integer
+      text:
+        type: string
+    type: object
+  mydb.Task:
+    properties:
+      assignee:
+        type: integer
+      completed:
+        type: boolean
+      created_by:
+        type: integer
+      description:
+        type: string
+      id:
+        type: integer
+      title:
+        type: string
+    type: object
+  mydb.User:
+    properties:
+      first_name:
+        type: string
+      id:
+        type: integer
+      last_name:
+        type: string
+    type: object
+host: localhost:3333
+info:
+  contact:
+    email: klymenok.a@gmail.com
+    name: Oleksii Klymenok
+    url: https://github.com/klymenok
+  description: This is a documentation for Task app
+  license:
+    name: MIT
+    url: some url here
+  termsOfService: To be implemented
+  title: Task app API
+  version: "1.0"
+paths:
+  /comments:
+    get:
+      consumes:
+      - application/json
+      description: get a comment by id
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/mydb.Comment'
+            type: array
+      summary: get comment
+      tags:
+      - Comment
+    post:
+      consumes:
+      - application/json
+      description: create comment
+      parameters:
+      - description: Text
+        in: body
+        name: text
+        required: true
+        schema:
+          type: string
+      - description: Task
+        in: body
+        name: task
+        required: true
+        schema:
+          type: integer
+      - description: Created By
+        in: body
+        name: created_by
+        required: true
+        schema:
+          type: integer
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/mydb.Comment'
+      summary: create comment
+      tags:
+      - Comment
+  /comments/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: delete an exising comment
+      parameters:
+      - description: Comment ID
+        format: int64
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: ""
+      summary: delete comment
+      tags:
+      - Comment
+    get:
+      consumes:
+      - application/json
+      description: get a comment by id
+      parameters:
+      - description: Comment ID
+        format: int64
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/mydb.Comment'
+      summary: get comment
+      tags:
+      - Comment
+    put:
+      consumes:
+      - application/json
+      description: update an existing comment
+      parameters:
+      - description: Comment ID
+        format: int64
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Text
+        in: body
+        name: text
+        required: true
+        schema:
+          type: string
+      - description: Task
+        in: body
+        name: task
+        required: true
+        schema:
+          type: integer
+      - description: Created By
+        in: body
+        name: created_by
+        required: true
+        schema:
+          type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/mydb.Task'
+      summary: update comment
+      tags:
+      - Comment
+  /tasks:
+    get:
+      consumes:
+      - application/json
+      description: get list of all tasks
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/mydb.Task'
+            type: array
+      summary: get tasks
+      tags:
+      - Task
+    post:
+      consumes:
+      - application/json
+      description: create a new task
+      parameters:
+      - description: Title
+        in: body
+        name: title
+        required: true
+        schema:
+          type: string
+      - description: Description
+        in: body
+        name: description
+        required: true
+        schema:
+          type: string
+      - description: Created By
+        in: body
+        name: created_by
+        required: true
+        schema:
+          type: integer
+      - description: Assignee
+        in: body
+        name: assignee
+        schema:
+          type: integer
+      - description: Completed
+        in: body
+        name: completed
+        schema:
+          type: boolean
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/mydb.Task'
+      summary: create a new task
+      tags:
+      - Task
+  /tasks/{id}:
+    get:
+      consumes:
+      - application/json
+      description: get a task by id
+      parameters:
+      - description: Task ID
+        format: int64
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/mydb.Task'
+      summary: get task
+      tags:
+      - Task
+    put:
+      consumes:
+      - application/json
+      description: update an existing task
+      parameters:
+      - description: Task ID
+        format: int64
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Title
+        in: body
+        name: title
+        required: true
+        schema:
+          type: string
+      - description: Description
+        in: body
+        name: description
+        required: true
+        schema:
+          type: string
+      - description: Created By
+        in: body
+        name: created_by
+        required: true
+        schema:
+          type: integer
+      - description: Assignee
+        in: body
+        name: assignee
+        required: true
+        schema:
+          type: integer
+      - description: Completed
+        in: body
+        name: completed
+        required: true
+        schema:
+          type: boolean
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/mydb.Task'
+      summary: update task
+      tags:
+      - Task
+  /tasks/{id}/complete:
+    post:
+      consumes:
+      - application/json
+      description: complete an existing task
+      parameters:
+      - description: Task ID
+        format: int64
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/mydb.Task'
+      summary: complete task
+      tags:
+      - Task
+  /tasks/{id}/create-comment:
+    post:
+      consumes:
+      - application/json
+      description: create a comment for the specified task
+      parameters:
+      - description: Task ID
+        format: int64
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Text
+        in: body
+        name: text
+        required: true
+        schema:
+          type: string
+      - description: Created By
+        in: body
+        name: created_by
+        required: true
+        schema:
+          type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/mydb.Comment'
+      summary: create comment for task
+      tags:
+      - Task
+  /users:
+    delete:
+      consumes:
+      - application/json
+      description: delete an existing user
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+          schema:
+            type: string
+      summary: delete user
+      tags:
+      - User
+    get:
+      consumes:
+      - application/json
+      description: get list of all users
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/mydb.User'
+            type: array
+      summary: get users
+      tags:
+      - User
+    post:
+      consumes:
+      - application/json
+      description: create a new user
+      parameters:
+      - description: First name
+        in: body
+        name: first_name
+        required: true
+        schema:
+          type: string
+      - description: Last name
+        in: body
+        name: last_name
+        required: true
+        schema:
+          type: string
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/mydb.User'
+      summary: create user
+      tags:
+      - User
+    put:
+      consumes:
+      - application/json
+      description: update an existing user
+      parameters:
+      - description: First name
+        in: body
+        name: first_name
+        schema:
+          type: string
+      - description: Last name
+        in: body
+        name: last_name
+        schema:
+          type: string
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/mydb.User'
+      summary: update user
+      tags:
+      - User
+  /users/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: delete an existing task
+      parameters:
+      - description: Task ID
+        format: int64
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: ""
+      summary: delete task
+      tags:
+      - Task
+    get:
+      consumes:
+      - application/json
+      description: get list of all users
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/mydb.User'
+      summary: get users
+      tags:
+      - User
+  /users/{id}/create-task:
+    get:
+      consumes:
+      - application/json
+      description: create a new task and assign it for existing user
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/mydb.Task'
+      summary: create a task for user
+      tags:
+      - User
+securityDefinitions:
+  NoAuth:
+    type: basic
+swagger: "2.0"
