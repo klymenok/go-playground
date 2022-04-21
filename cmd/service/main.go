@@ -6,7 +6,6 @@ import (
 
 	_ "github.com/klymenok/go-playground/docs"
 
-	mydb "github.com/klymenok/go-playground/internal/db"
 	"github.com/klymenok/go-playground/internal/handlers"
 
 )
@@ -31,11 +30,7 @@ var GreenColor = "\033[32m"
 // @BasePath  /
 
 // @securityDefinitions.basic  NoAuth
-
 func main() {
-	fmt.Println("Database initialization...")
-	mydb.Init()
-	fmt.Println(GreenColor + "Database initialized" + ResetColor)
 	fmt.Println("Starting web server on port 3333")
 	fmt.Println(GreenColor + "Server started and ready for connections" + ResetColor)
 
