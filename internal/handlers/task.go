@@ -7,8 +7,7 @@ import (
 
 	"github.com/go-chi/chi/v5"
 
-	db "github.com/klymenok/go-playground/internal/db"
-	todo "github.com/klymenok/go-playground/internal/todo"
+	"github.com/klymenok/go-playground/internal/todo"
 )
 
 // @BasePath /api/v1
@@ -24,6 +23,8 @@ import (
 // @Success      200          {object}  todo.Task
 // @Router       /tasks/{id} [get]
 func GetTask(w http.ResponseWriter, r *http.Request) {
+	todo := todo.NewToDo()
+
 	taskId, _ := strconv.Atoi(chi.URLParam(r, "taskId"))
 	task, err := todo.GetTaskById(int64(taskId))
 	if err != nil {
@@ -66,8 +67,8 @@ func GetTasks(w http.ResponseWriter, r *http.Request) {
 // @Router       /tasks [post]
 func CreateTask(w http.ResponseWriter, r *http.Request) {
 	// TODO add data validation
-	db := db.New()
-	task := todo.NewTask(db)
+	task := todo.NewTask()
+
 	json.NewDecoder(r.Body).Decode(&task)
 	task.Create()
 	json.NewEncoder(w).Encode(task)
@@ -92,6 +93,8 @@ func CreateTask(w http.ResponseWriter, r *http.Request) {
 // @Router       /tasks/{id} [put]
 func UpdateTask(w http.ResponseWriter, r *http.Request) {
 	// TODO add data validation
+	todo := todo.NewToDo()
+
 	taskId, _ := strconv.Atoi(chi.URLParam(r, "taskId"))
 	task, err := todo.GetTaskById(int64(taskId))
 	if err != nil {
@@ -116,6 +119,8 @@ func UpdateTask(w http.ResponseWriter, r *http.Request) {
 // @Success      200  {object}  todo.Task
 // @Router       /tasks/{id}/complete [post]
 func CompleteTask(w http.ResponseWriter, r *http.Request) {
+	todo := todo.NewToDo()
+
 	taskId, _ := strconv.Atoi(chi.URLParam(r, "taskId"))
 	task, err := todo.GetTaskById(int64(taskId))
 	if err != nil {
@@ -139,6 +144,8 @@ func CompleteTask(w http.ResponseWriter, r *http.Request) {
 // @Success      204
 // @Router       /users/{id} [delete]
 func DeleteTask(w http.ResponseWriter, r *http.Request) {
+	todo := todo.NewToDo()
+
 	taskId, _ := strconv.Atoi(chi.URLParam(r, "taskId"))
 	todo.DeleteTaskById(int64(taskId))
 	w.Write([]byte("Task deleted"))

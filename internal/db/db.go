@@ -34,9 +34,9 @@ func (db *DB) Exec(sql string) (sql.Result, error) {
 	return conn.Exec(sql)
 }
 
-func (db *DB) QueryRow(sql string) (sql.Result, error) {
+func (db *DB) QueryRow(sql string) *sql.Row  {
 	conn := connect(db.url)
 	defer conn.Close()
 
-	return conn.Exec(sql)
+	return conn.QueryRow(sql)
 }
