@@ -1,11 +1,14 @@
 package handlers
 
 import (
-	"encoding/json"
-	"github.com/go-chi/chi/v5"
-	mydb "github.com/klymenok/go-playground/internal/db"
 	"net/http"
 	"strconv"
+	"encoding/json"
+
+	"github.com/go-chi/chi/v5"
+
+	"github.com/klymenok/go-playground/internal/db"
+  "github.com/klymenok/go-playground/internal/todo"
 )
 
 // GetComment godoc
@@ -16,11 +19,11 @@ import (
 // @Accept       json
 // @Produce      json
 // @Param        id   path      int  true  "Comment ID"  Format(int64)
-// @Success      200  {object}  mydb.Comment
+// @Success      200  {object}  todo.Comment
 // @Router       /comments/{id} [get]
 func GetComment(w http.ResponseWriter, r *http.Request) {
 	commentId, _ := strconv.Atoi(chi.URLParam(r, "commentId"))
-	comment, err := mydb.GetCommentById(int64(commentId))
+	comment, err := todo.GetCommentById(int64(commentId))
 	if err != nil {
 		w.WriteHeader(404)
 	} else {
@@ -35,7 +38,7 @@ func GetComment(w http.ResponseWriter, r *http.Request) {
 // @Tags         Comment
 // @Accept       json
 // @Produce      json
-// @Success      200  {array}  mydb.Comment
+// @Success      200  {array}  todo.Comment
 // @Router       /comments [get]
 func GetComments(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("Comments"))
@@ -51,11 +54,13 @@ func GetComments(w http.ResponseWriter, r *http.Request) {
 // @Param        text        body      string  true  "Text"
 // @Param        task        body      int     true  "Task"
 // @Param        created_by  body      int     true  "Created By"
-// @Success      201         {object}  mydb.Comment
+// @Success      201         {object}  todo.Comment
 // @Router       /comments [post]
 func CreateComment(w http.ResponseWriter, r *http.Request) {
 	// TODO add data validation
-	var comment mydb.Comment
+	db := db.New()
+	comment := todo.NewComment(db)
+
 	json.NewDecoder(r.Body).Decode(&comment)
 	comment.Create()
 	json.NewEncoder(w).Encode(comment)
@@ -72,12 +77,12 @@ func CreateComment(w http.ResponseWriter, r *http.Request) {
 // @Param        text        body      string  true  "Text"
 // @Param        task        body      int     true  "Task"
 // @Param        created_by  body      int     true  "Created By"
-// @Success      200         {object}  mydb.Task
+// @Success      200         {object}  todo.Task
 // @Router       /comments/{id} [put]
 func UpdateComment(w http.ResponseWriter, r *http.Request) {
 	// TODO add data validation
 	commentId, _ := strconv.Atoi(chi.URLParam(r, "commentId"))
-	comment, err := mydb.GetCommentById(int64(commentId))
+	comment, err := todo.GetCommentById(int64(commentId))
 	if err != nil {
 		w.WriteHeader(404)
 	} else {
@@ -99,6 +104,6 @@ func UpdateComment(w http.ResponseWriter, r *http.Request) {
 // @Router       /comments/{id} [delete]
 func DeleteComment(w http.ResponseWriter, r *http.Request) {
 	commentId, _ := strconv.Atoi(chi.URLParam(r, "commentId"))
-	mydb.DeleteCommentById(int64(commentId))
+	todo.DeleteCommentById(int64(commentId))
 	w.Write([]byte("Comment deleted"))
 }

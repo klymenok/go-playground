@@ -1,12 +1,23 @@
-package mydb
+package db
 
 import (
 	"database/sql"
-	"github.com/joho/godotenv"
-	_ "github.com/mattn/go-sqlite3"
 	"log"
 	"os"
+
+	"github.com/joho/godotenv"
+	_ "github.com/mattn/go-sqlite3"
 )
+
+type DB struct {
+	url string
+}
+
+func New() *DB {
+	godotenv.Load(".env")
+	dbName := os.Getenv("DB_NAME")
+	return &DB{dbName}
+}
 
 func connect(dbName string) *sql.DB {
 	db, err := sql.Open("sqlite3", "./"+dbName)
@@ -16,7 +27,16 @@ func connect(dbName string) *sql.DB {
 	return db
 }
 
-func Connection() *sql.DB {
-	godotenv.Load(".env")
-	return connect(os.Getenv("DB_NAME"))
+func (db *DB) Exec(sql string) (sql.Result, error) {
+	conn := connect(db.url)
+	defer conn.Close()
+
+	return conn.Exec(sql)
+}
+
+func (db *DB) QueryRow(sql string) (sql.Result, error) {
+	conn := connect(db.url)
+	defer conn.Close()
+
+	return conn.Exec(sql)
 }

@@ -2,11 +2,14 @@ package handlers
 
 import (
 	"encoding/json"
-	"github.com/go-chi/chi/v5"
-	mydb "github.com/klymenok/go-playground/internal/db"
 	"log"
 	"net/http"
 	"strconv"
+
+	"github.com/go-chi/chi/v5"
+
+	"github.com/klymenok/go-playground/internal/db"
+	"github.com/klymenok/go-playground/internal/todo"
 )
 
 // @BasePath /api/v1
@@ -18,11 +21,11 @@ import (
 // @Tags         User
 // @Accept       json
 // @Produce      json
-// @Success      200  {object}  mydb.User
+// @Success      200  {object}  todo.User
 // @Router       /users/{id} [get]
 func GetUser(w http.ResponseWriter, r *http.Request) {
 	userId, _ := strconv.Atoi(chi.URLParam(r, "userId"))
-	user, err := mydb.GetUserById(int64(userId))
+	user, err := todo.GetUserById(int64(userId))
 	log.Println(err)
 	if err != nil {
 		w.WriteHeader(404)
@@ -40,7 +43,7 @@ func GetUser(w http.ResponseWriter, r *http.Request) {
 // @Tags         User
 // @Accept       json
 // @Produce      json
-// @Success      200  {array}  mydb.User
+// @Success      200  {array}  todo.User
 // @Router       /users [get]
 func GetUsers(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("users"))
@@ -57,11 +60,13 @@ func GetUsers(w http.ResponseWriter, r *http.Request) {
 // @Produce      json
 // @Param        first_name  body      string  true  "First name"
 // @Param        last_name   body      string  true  "Last name"
-// @Success      201         {object}  mydb.User
+// @Success      201         {object}  todo.User
 // @Router       /users [post]
 func CreateUser(w http.ResponseWriter, r *http.Request) {
 	// TODO add data validation
-	var user mydb.User
+	db := db.New()
+	user := todo.NewUser(db)
+	
 	json.NewDecoder(r.Body).Decode(&user)
 	user.Create()
 	json.NewEncoder(w).Encode(user)
@@ -78,12 +83,12 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 // @Produce      json
 // @Param        first_name  body      string  false  "First name"
 // @Param        last_name   body      string  false  "Last name"
-// @Success      201         {object}  mydb.User
+// @Success      201         {object}  todo.User
 // @Router       /users [put]
 func UpdateUser(w http.ResponseWriter, r *http.Request) {
 	// TODO add data validation
 	userId, _ := strconv.Atoi(chi.URLParam(r, "userId"))
-	user, err := mydb.GetUserById(int64(userId))
+	user, err := todo.GetUserById(int64(userId))
 	if err != nil {
 		w.WriteHeader(404)
 	} else {
@@ -107,7 +112,7 @@ func UpdateUser(w http.ResponseWriter, r *http.Request) {
 // @Router       /users [delete]
 func DeleteUser(w http.ResponseWriter, r *http.Request) {
 	userId, _ := strconv.Atoi(chi.URLParam(r, "userId"))
-	mydb.DeleteUserById(int64(userId))
+	todo.DeleteUserById(int64(userId))
 	w.Write([]byte("User deleted"))
 }
 
@@ -120,10 +125,12 @@ func DeleteUser(w http.ResponseWriter, r *http.Request) {
 // @Tags         User
 // @Accept       json
 // @Produce      json
-// @Success      201  {object}  mydb.Task
+// @Success      201  {object}  todo.Task
 // @Router       /users/{id}/create-task [get]
 func CreateTaskForUser(w http.ResponseWriter, r *http.Request) {
-	var task mydb.Task
+	// var task mydb.Task
+	db := db.New()
+	task := todo.NewTask(db)
 	userId, _ := strconv.Atoi(chi.URLParam(r, "userId"))
 	json.NewDecoder(r.Body).Decode(&task)
 	task.CreatedBy = int64(userId)

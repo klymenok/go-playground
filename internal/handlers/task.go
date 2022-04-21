@@ -2,10 +2,13 @@ package handlers
 
 import (
 	"encoding/json"
-	"github.com/go-chi/chi/v5"
-	mydb "github.com/klymenok/go-playground/internal/db"
 	"net/http"
 	"strconv"
+
+	"github.com/go-chi/chi/v5"
+
+	db "github.com/klymenok/go-playground/internal/db"
+	todo "github.com/klymenok/go-playground/internal/todo"
 )
 
 // @BasePath /api/v1
@@ -18,11 +21,11 @@ import (
 // @Accept       json
 // @Produce      json
 // @Param        id   path      int  true  "Task ID"  Format(int64)
-// @Success      200          {object}  mydb.Task
+// @Success      200          {object}  todo.Task
 // @Router       /tasks/{id} [get]
 func GetTask(w http.ResponseWriter, r *http.Request) {
 	taskId, _ := strconv.Atoi(chi.URLParam(r, "taskId"))
-	task, err := mydb.GetTaskById(int64(taskId))
+	task, err := todo.GetTaskById(int64(taskId))
 	if err != nil {
 		w.WriteHeader(404)
 	} else {
@@ -39,7 +42,7 @@ func GetTask(w http.ResponseWriter, r *http.Request) {
 // @Tags         Task
 // @Accept       json
 // @Produce      json
-// @Success      200  {array}  mydb.Task
+// @Success      200  {array}  todo.Task
 // @Router       /tasks [get]
 func GetTasks(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("Tasks"))
@@ -59,11 +62,12 @@ func GetTasks(w http.ResponseWriter, r *http.Request) {
 // @Param        created_by  body      int     true  "Created By"
 // @Param        assignee     body      int     false  "Assignee"
 // @Param        completed    body      bool    false  "Completed"
-// @Success      201          {object}  mydb.Task
+// @Success      201          {object}  todo.Task
 // @Router       /tasks [post]
 func CreateTask(w http.ResponseWriter, r *http.Request) {
 	// TODO add data validation
-	var task mydb.Task
+	db := db.New()
+	task := todo.NewTask(db)
 	json.NewDecoder(r.Body).Decode(&task)
 	task.Create()
 	json.NewEncoder(w).Encode(task)
@@ -84,12 +88,12 @@ func CreateTask(w http.ResponseWriter, r *http.Request) {
 // @Param        created_by   body      int     true  "Created By"
 // @Param        assignee     body      int     true  "Assignee"
 // @Param        completed    body      bool    true  "Completed"
-// @Success      200  {object}  mydb.Task
+// @Success      200  {object}  todo.Task
 // @Router       /tasks/{id} [put]
 func UpdateTask(w http.ResponseWriter, r *http.Request) {
 	// TODO add data validation
 	taskId, _ := strconv.Atoi(chi.URLParam(r, "taskId"))
-	task, err := mydb.GetTaskById(int64(taskId))
+	task, err := todo.GetTaskById(int64(taskId))
 	if err != nil {
 		w.WriteHeader(404)
 	} else {
@@ -109,11 +113,11 @@ func UpdateTask(w http.ResponseWriter, r *http.Request) {
 // @Accept       json
 // @Produce      json
 // @Param        id   path      int  true  "Task ID"  Format(int64)
-// @Success      200  {object}  mydb.Task
+// @Success      200  {object}  todo.Task
 // @Router       /tasks/{id}/complete [post]
 func CompleteTask(w http.ResponseWriter, r *http.Request) {
 	taskId, _ := strconv.Atoi(chi.URLParam(r, "taskId"))
-	task, err := mydb.GetTaskById(int64(taskId))
+	task, err := todo.GetTaskById(int64(taskId))
 	if err != nil {
 		w.WriteHeader(404)
 	} else {
@@ -136,7 +140,7 @@ func CompleteTask(w http.ResponseWriter, r *http.Request) {
 // @Router       /users/{id} [delete]
 func DeleteTask(w http.ResponseWriter, r *http.Request) {
 	taskId, _ := strconv.Atoi(chi.URLParam(r, "taskId"))
-	mydb.DeleteTaskById(int64(taskId))
+	todo.DeleteTaskById(int64(taskId))
 	w.Write([]byte("Task deleted"))
 }
 
@@ -150,11 +154,11 @@ func DeleteTask(w http.ResponseWriter, r *http.Request) {
 // @Param        id          path      int     true  "Task ID"  Format(int64)
 // @Param        text        body      string  true  "Text"
 // @Param        created_by   body      int     true   "Created By"
-// @Success      200         {object}  mydb.Comment
+// @Success      200         {object}  todo.Comment
 // @Router       /tasks/{id}/create-comment [post]
 func CreateCommentForTask(w http.ResponseWriter, r *http.Request) {
 	// TODO add data validation
-	var comment mydb.Comment
+	var comment todo.Comment
 	taskId, _ := strconv.Atoi(chi.URLParam(r, "taskId"))
 	json.NewDecoder(r.Body).Decode(&comment)
 	comment.Task = int64(taskId)
