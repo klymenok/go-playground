@@ -2,10 +2,13 @@ package main
 
 import (
 	"fmt"
-	mydb "github.com/klymenok/go-playground/db"
-	_ "github.com/klymenok/go-playground/docs"
-	"github.com/klymenok/go-playground/router"
 	"net/http"
+
+	_ "github.com/klymenok/go-playground/docs"
+
+	mydb "github.com/klymenok/go-playground/internal/db"
+	"github.com/klymenok/go-playground/internal/handlers"
+
 )
 
 // colors for console output
@@ -36,7 +39,7 @@ func main() {
 	fmt.Println("Starting web server on port 3333")
 	fmt.Println(GreenColor + "Server started and ready for connections" + ResetColor)
 
-	err := http.ListenAndServe(":3333", router.Init())
+	err := http.ListenAndServe(":3333", handlers.Init())
 	if err != nil {
 		return
 	}

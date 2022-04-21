@@ -1,9 +1,9 @@
-package routehandlers
+package handlers
 
 import (
 	"encoding/json"
 	"github.com/go-chi/chi/v5"
-	mydb "github.com/klymenok/go-playground/db"
+	mydb "github.com/klymenok/go-playground/internal/db"
 	"net/http"
 	"strconv"
 )

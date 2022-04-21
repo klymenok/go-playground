@@ -2,7 +2,7 @@ package mydb
 
 import (
 	"fmt"
-	"github.com/klymenok/go-playground/utils"
+	"github.com/klymenok/go-playground/internal/utils"
 )
 
 type Comment struct {
