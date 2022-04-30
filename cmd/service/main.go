@@ -2,10 +2,12 @@ package main
 
 import (
 	"fmt"
-	mydb "github.com/klymenok/go-playground/db"
-	_ "github.com/klymenok/go-playground/docs"
-	"github.com/klymenok/go-playground/router"
 	"net/http"
+
+	_ "github.com/klymenok/go-playground/docs"
+
+	"github.com/klymenok/go-playground/internal/handlers"
+
 )
 
 // colors for console output
@@ -28,15 +30,11 @@ var GreenColor = "\033[32m"
 // @BasePath  /
 
 // @securityDefinitions.basic  NoAuth
-
 func main() {
-	fmt.Println("Database initialization...")
-	mydb.Init()
-	fmt.Println(GreenColor + "Database initialized" + ResetColor)
 	fmt.Println("Starting web server on port 3333")
 	fmt.Println(GreenColor + "Server started and ready for connections" + ResetColor)
 
-	err := http.ListenAndServe(":3333", router.Init())
+	err := http.ListenAndServe(":3333", handlers.Init())
 	if err != nil {
 		return
 	}

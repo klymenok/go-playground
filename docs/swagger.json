@@ -37,7 +37,7 @@
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/mydb.Comment"
+                                "$ref": "#/definitions/todo.Comment"
                             }
                         }
                     }
@@ -88,7 +88,7 @@
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/mydb.Comment"
+                            "$ref": "#/definitions/todo.Comment"
                         }
                     }
                 }
@@ -121,7 +121,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/mydb.Comment"
+                            "$ref": "#/definitions/todo.Comment"
                         }
                     }
                 }
@@ -179,7 +179,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/mydb.Task"
+                            "$ref": "#/definitions/todo.Task"
                         }
                     }
                 }
@@ -232,7 +232,7 @@
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/mydb.Task"
+                                "$ref": "#/definitions/todo.Task"
                             }
                         }
                     }
@@ -299,7 +299,7 @@
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/mydb.Task"
+                            "$ref": "#/definitions/todo.Task"
                         }
                     }
                 }
@@ -332,7 +332,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/mydb.Task"
+                            "$ref": "#/definitions/todo.Task"
                         }
                     }
                 }
@@ -408,7 +408,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/mydb.Task"
+                            "$ref": "#/definitions/todo.Task"
                         }
                     }
                 }
@@ -441,7 +441,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/mydb.Task"
+                            "$ref": "#/definitions/todo.Task"
                         }
                     }
                 }
@@ -492,7 +492,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/mydb.Comment"
+                            "$ref": "#/definitions/todo.Comment"
                         }
                     }
                 }
@@ -517,7 +517,7 @@
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/mydb.User"
+                                "$ref": "#/definitions/todo.User"
                             }
                         }
                     }
@@ -557,7 +557,7 @@
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/mydb.User"
+                            "$ref": "#/definitions/todo.User"
                         }
                     }
                 }
@@ -598,7 +598,7 @@
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/mydb.User"
+                            "$ref": "#/definitions/todo.User"
                         }
                     }
                 }
@@ -642,7 +642,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/mydb.User"
+                            "$ref": "#/definitions/todo.User"
                         }
                     }
                 }
@@ -693,7 +693,7 @@
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/mydb.Task"
+                            "$ref": "#/definitions/todo.Task"
                         }
                     }
                 }
@@ -701,7 +701,7 @@
         }
     },
     "definitions": {
-        "mydb.Comment": {
+        "todo.Comment": {
             "type": "object",
             "properties": {
                 "created_at": {
@@ -721,7 +721,7 @@
                 }
             }
         },
-        "mydb.Task": {
+        "todo.Task": {
             "type": "object",
             "properties": {
                 "assignee": {
@@ -744,7 +744,7 @@
                 }
             }
         },
-        "mydb.User": {
+        "todo.User": {
             "type": "object",
             "properties": {
                 "first_name": {
