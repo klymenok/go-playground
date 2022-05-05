@@ -7,8 +7,8 @@ import (
 
 	"github.com/go-chi/chi/v5"
 
-	"github.com/klymenok/go-playground/internal/todo"
 	"github.com/klymenok/go-playground/internal/db"
+	"github.com/klymenok/go-playground/internal/todo"
 )
 
 // @BasePath /api/v1
@@ -28,7 +28,7 @@ func GetTask(w http.ResponseWriter, r *http.Request) {
 	todo := todo.NewToDo(db)
 
 	taskId, _ := strconv.Atoi(chi.URLParam(r, "taskId"))
-	task, err := todo.GetTaskById(int64(taskId))
+	task, err := todo.Tasks.ById(int64(taskId))
 	if err != nil {
 		w.WriteHeader(404)
 	} else {
@@ -69,10 +69,12 @@ func GetTasks(w http.ResponseWriter, r *http.Request) {
 // @Router       /tasks [post]
 func CreateTask(w http.ResponseWriter, r *http.Request) {
 	// TODO add data validation
-	task := todo.NewTask()
+	db := db.New()
+	task := todo.Task{}
+	todo := todo.NewToDo(db)
 
 	json.NewDecoder(r.Body).Decode(&task)
-	task.Create()
+	todo.Tasks.Create(&task)
 	json.NewEncoder(w).Encode(task)
 }
 
@@ -99,12 +101,12 @@ func UpdateTask(w http.ResponseWriter, r *http.Request) {
 	todo := todo.NewToDo(db)
 
 	taskId, _ := strconv.Atoi(chi.URLParam(r, "taskId"))
-	task, err := todo.GetTaskById(int64(taskId))
+	task, err := todo.Tasks.ById(int64(taskId))
 	if err != nil {
 		w.WriteHeader(404)
 	} else {
 		json.NewDecoder(r.Body).Decode(&task)
-		task.Update()
+		todo.Tasks.Update(task)
 		json.NewEncoder(w).Encode(task)
 	}
 }
@@ -126,11 +128,11 @@ func CompleteTask(w http.ResponseWriter, r *http.Request) {
 	todo := todo.NewToDo(db)
 
 	taskId, _ := strconv.Atoi(chi.URLParam(r, "taskId"))
-	task, err := todo.GetTaskById(int64(taskId))
+	task, err := todo.Tasks.ById(int64(taskId))
 	if err != nil {
 		w.WriteHeader(404)
 	} else {
-		task.Complete()
+		todo.Tasks.Complete(&task)
 		json.NewEncoder(w).Encode(task)
 	}
 }
@@ -152,7 +154,7 @@ func DeleteTask(w http.ResponseWriter, r *http.Request) {
 	todo := todo.NewToDo(db)
 
 	taskId, _ := strconv.Atoi(chi.URLParam(r, "taskId"))
-	todo.DeleteTaskById(int64(taskId))
+	todo.Tasks.DeleteById(int64(taskId))
 	w.Write([]byte("Task deleted"))
 }
 
@@ -171,9 +173,12 @@ func DeleteTask(w http.ResponseWriter, r *http.Request) {
 func CreateCommentForTask(w http.ResponseWriter, r *http.Request) {
 	// TODO add data validation
 	var comment todo.Comment
+	db := db.New()
+	todo := todo.NewToDo(db)
+
 	taskId, _ := strconv.Atoi(chi.URLParam(r, "taskId"))
 	json.NewDecoder(r.Body).Decode(&comment)
 	comment.Task = int64(taskId)
-	comment.Create()
+	todo.Comments.Create(&comment)
 	json.NewEncoder(w).Encode(comment)
 }

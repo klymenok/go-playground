@@ -1,15 +1,12 @@
 package todo
 
 import (
+	"database/sql"
 	"fmt"
 	"log"
-
-	"github.com/klymenok/go-playground/internal/db"
 )
 
 type Task struct {
-	db *db.DB
-
 	Id          int64  `json:"id"`
 	Title       string `json:"title"`
 	Description string `json:"description"`
@@ -18,47 +15,71 @@ type Task struct {
 	Completed   bool   `json:"completed"`
 }
 
-func NewTask() *Task {
-	task := &Task{}
-	task.db = db.New()
-	return task
+type tasks struct {
+	db *sql.DB
 }
 
-func (t *Task) Create() {
+func NewTask(db *sql.DB) *tasks {
+	return &tasks{db}
+}
+
+func (t *tasks) Create(task *Task) {
+
 	createTaskQuery := fmt.Sprintf(
 		"insert into task (title, description, created_by, assignee) values ('%s', '%s', %d, %d)",
-		t.Title,
-		t.Description,
-		t.CreatedBy,
-		t.Assignee)
+		task.Title,
+		task.Description,
+		task.CreatedBy,
+		task.Assignee)
 	result, err := t.db.Exec(createTaskQuery)
 	if err != nil {
 		log.Fatalln(err)
 	}
-	t.Id, _ = result.LastInsertId()
+	task.Id, _ = result.LastInsertId()
 }
 
-func (t *Task) Update() {
+func (t *tasks) Update(task Task) {
 	updateTaskQuery := fmt.Sprintf(
 		"update task set title='%s', description='%s', assignee=%d, completed=%t where id=%d",
-		t.Title,
-		t.Description,
-		t.Assignee,
-		t.Completed,
-		t.Id)
+		task.Title,
+		task.Description,
+		task.Assignee,
+		task.Completed,
+		task.Id)
 	_, err := t.db.Exec(updateTaskQuery)
 	if err != nil {
 		log.Fatalln(err)
 	}
 }
 
-func (t *Task) Complete() {
-	updateTaskQuery := fmt.Sprintf(
-		"update task set completed=True where id=%d",
-		t.Id)
-	_, err := t.db.Exec(updateTaskQuery)
+func (t *tasks) Complete(task *Task) {
+	_, err := t.db.Exec("update task set completed=True where id=?", task.Id)
 	if err != nil {
 		log.Fatalln(err)
 	}
-	t.Completed = true
+	task.Completed = true
+}
+
+func (t *tasks) DeleteById(taskId int64) {
+	deleteTaskQuery := fmt.Sprintf("delete from task where id=%d", taskId)
+	t.db.Exec(deleteTaskQuery)
+}
+
+func (t *tasks) ById(taskId int64) (Task, error) {
+	var task Task
+
+	err := t.db.QueryRow(
+		"select * from task where id=?", taskId,
+	).Scan(
+		&task.Id,
+		&task.Title,
+		&task.Description,
+		&task.CreatedBy,
+		&task.Assignee,
+		&task.Completed,
+	)
+	if err != nil {
+		return task, err
+	}
+	return task, nil
 }

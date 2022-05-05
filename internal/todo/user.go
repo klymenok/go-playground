@@ -1,42 +1,62 @@
 package todo
 
 import (
+	"database/sql"
 	"fmt"
 
-	"github.com/klymenok/go-playground/internal/db"
 	"github.com/klymenok/go-playground/internal/utils"
 )
 
 type User struct {
-	db        *db.DB
+	db        *sql.DB
 	Id        int64  `json:"id"`
 	FirstName string `json:"first_name"`
 	LastName  string `json:"last_name"`
 }
 
-func NewUser() *User {
-	user := &User{}
-	user.db = db.New()
-	return user
+type users struct {
+	db *sql.DB
 }
 
-func (u *User) Create() {
+func NewUsers(db *sql.DB) *users {
+	return &users{db}
+}
+
+func (u *users) Create(user *User) {
 	createUserQuery := fmt.Sprintf(
 		"insert into user (first_name, last_name) values ('%s', '%s')",
-		u.FirstName,
-		u.LastName)
+		user.FirstName,
+		user.LastName)
 	result, err := u.db.Exec(createUserQuery)
 	utils.CheckError(err)
-	u.Id, _ = result.LastInsertId()
+	user.Id, _ = result.LastInsertId()
 }
 
-func (u *User) Update() {
-
+func (u *users) Update(user User) {
 	updateUserQuery := fmt.Sprintf(
 		"update user set first_name='%s', last_name='%s' where id=%d",
-		u.FirstName,
-		u.LastName,
-		u.Id)
+		user.FirstName,
+		user.LastName,
+		user.Id)
 	_, err := u.db.Exec(updateUserQuery)
 	utils.CheckError(err)
+}
+
+func (u *users) ById(userId int64) (User, error) {
+	var user User
+
+	err := u.db.QueryRow(
+		"select * from user where id=?", userId,
+	).Scan(
+		&user.Id, &user.FirstName, &user.LastName,
+	)
+	if err != nil {
+		return user, err
+	}
+	return user, nil
+}
+
+func (u *users) DeleteById(userId int64) {
+	deleteUserQuery := fmt.Sprintf("delete from user where id=%d", userId)
+	u.db.Exec(deleteUserQuery)
 }
