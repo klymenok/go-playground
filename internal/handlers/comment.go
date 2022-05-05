@@ -7,6 +7,7 @@ import (
 
 	"github.com/go-chi/chi/v5"
 
+	"github.com/klymenok/go-playground/internal/db"
   "github.com/klymenok/go-playground/internal/todo"
 )
 
@@ -21,7 +22,8 @@ import (
 // @Success      200  {object}  todo.Comment
 // @Router       /comments/{id} [get]
 func GetComment(w http.ResponseWriter, r *http.Request) {
-	todo := todo.NewToDo()
+	db := db.New()
+	todo := todo.NewToDo(db)
 
 	commentId, _ := strconv.Atoi(chi.URLParam(r, "commentId"))
 	comment, err := todo.GetCommentById(int64(commentId))
@@ -81,7 +83,8 @@ func CreateComment(w http.ResponseWriter, r *http.Request) {
 // @Router       /comments/{id} [put]
 func UpdateComment(w http.ResponseWriter, r *http.Request) {
 	// TODO add data validation
-	todo := todo.NewToDo()
+	db := db.New()
+	todo := todo.NewToDo(db)
 
 	commentId, _ := strconv.Atoi(chi.URLParam(r, "commentId"))
 	comment, err := todo.GetCommentById(int64(commentId))
@@ -105,7 +108,8 @@ func UpdateComment(w http.ResponseWriter, r *http.Request) {
 // @Success      204
 // @Router       /comments/{id} [delete]
 func DeleteComment(w http.ResponseWriter, r *http.Request) {
-	todo := todo.NewToDo()
+	db := db.New()
+	todo := todo.NewToDo(db)
 
 	commentId, _ := strconv.Atoi(chi.URLParam(r, "commentId"))
 	todo.DeleteCommentById(int64(commentId))

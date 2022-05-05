@@ -8,6 +8,7 @@ import (
 
 	"github.com/go-chi/chi/v5"
 
+	"github.com/klymenok/go-playground/internal/db"
 	"github.com/klymenok/go-playground/internal/todo"
 )
 
@@ -23,7 +24,8 @@ import (
 // @Success      200  {object}  todo.User
 // @Router       /users/{id} [get]
 func GetUser(w http.ResponseWriter, r *http.Request) {
-	todo := todo.NewToDo()
+	db := db.New()
+	todo := todo.NewToDo(db)
 
 	userId, _ := strconv.Atoi(chi.URLParam(r, "userId"))
 	user, err := todo.GetUserById(int64(userId))
@@ -87,7 +89,8 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 // @Router       /users [put]
 func UpdateUser(w http.ResponseWriter, r *http.Request) {
 	// TODO add data validation
-	todo := todo.NewToDo()
+	db := db.New()
+	todo := todo.NewToDo(db)
 
 	userId, _ := strconv.Atoi(chi.URLParam(r, "userId"))
 	user, err := todo.GetUserById(int64(userId))
@@ -113,7 +116,8 @@ func UpdateUser(w http.ResponseWriter, r *http.Request) {
 // @Success      204  string  User  deleted
 // @Router       /users [delete]
 func DeleteUser(w http.ResponseWriter, r *http.Request) {
-	todo := todo.NewToDo()
+	db := db.New()
+	todo := todo.NewToDo(db)
 
 	userId, _ := strconv.Atoi(chi.URLParam(r, "userId"))
 	todo.DeleteUserById(int64(userId))

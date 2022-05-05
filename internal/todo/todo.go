@@ -3,16 +3,16 @@ package todo
 import (
 	"fmt"
 
-	"github.com/klymenok/go-playground/internal/db"
+	mydb "github.com/klymenok/go-playground/internal/db"
 )
 
 type ToDo struct {
-	db *db.DB
+	db *mydb.DB
 }
 
-func NewToDo() *ToDo {
+func NewToDo(db *mydb.DB) *ToDo {
 	todo := &ToDo{}
-	todo.db = db.New()
+	todo.db = db
 	return todo
 }
 
