@@ -10,13 +10,18 @@ import (
 )
 
 type DB struct {
+	Conn  *sql.DB
 	url string
 }
 
-func New() *DB {
+func New() *sql.DB {
 	godotenv.Load(".env")
-	dbName := os.Getenv("DB_NAME")
-	return &DB{dbName}
+
+	db := DB{}
+	db.url = os.Getenv("DB_NAME")
+	db.Conn = connect(db.url)
+
+	return db.Conn
 }
 
 func connect(dbName string) *sql.DB {
@@ -25,18 +30,4 @@ func connect(dbName string) *sql.DB {
 		log.Fatal(err)
 	}
 	return db
-}
-
-func (db *DB) Exec(sql string) (sql.Result, error) {
-	conn := connect(db.url)
-	defer conn.Close()
-
-	return conn.Exec(sql)
-}
-
-func (db *DB) QueryRow(sql string) *sql.Row  {
-	conn := connect(db.url)
-	defer conn.Close()
-
-	return conn.QueryRow(sql)
 }

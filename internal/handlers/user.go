@@ -8,6 +8,7 @@ import (
 
 	"github.com/go-chi/chi/v5"
 
+	"github.com/klymenok/go-playground/internal/db"
 	"github.com/klymenok/go-playground/internal/todo"
 )
 
@@ -23,10 +24,11 @@ import (
 // @Success      200  {object}  todo.User
 // @Router       /users/{id} [get]
 func GetUser(w http.ResponseWriter, r *http.Request) {
-	todo := todo.NewToDo()
+	db := db.New()
+	todo := todo.NewToDo(db)
 
 	userId, _ := strconv.Atoi(chi.URLParam(r, "userId"))
-	user, err := todo.GetUserById(int64(userId))
+	user, err := todo.Users.ById(int64(userId))
 	log.Println(err)
 	if err != nil {
 		w.WriteHeader(404)
@@ -65,10 +67,12 @@ func GetUsers(w http.ResponseWriter, r *http.Request) {
 // @Router       /users [post]
 func CreateUser(w http.ResponseWriter, r *http.Request) {
 	// TODO add data validation
-	user := todo.NewUser()
+	db := db.New()
+	user := todo.User{}
+	todo := todo.NewToDo(db)
 
 	json.NewDecoder(r.Body).Decode(&user)
-	user.Create()
+	todo.Users.Create(&user)
 	json.NewEncoder(w).Encode(user)
 }
 
@@ -87,15 +91,16 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 // @Router       /users [put]
 func UpdateUser(w http.ResponseWriter, r *http.Request) {
 	// TODO add data validation
-	todo := todo.NewToDo()
+	db := db.New()
+	todo := todo.NewToDo(db)
 
 	userId, _ := strconv.Atoi(chi.URLParam(r, "userId"))
-	user, err := todo.GetUserById(int64(userId))
+	user, err := todo.Users.ById(int64(userId))
 	if err != nil {
 		w.WriteHeader(404)
 	} else {
 		json.NewDecoder(r.Body).Decode(&user)
-		user.Update()
+		todo.Users.Update(user)
 		json.NewEncoder(w).Encode(user)
 	}
 
@@ -113,10 +118,11 @@ func UpdateUser(w http.ResponseWriter, r *http.Request) {
 // @Success      204  string  User  deleted
 // @Router       /users [delete]
 func DeleteUser(w http.ResponseWriter, r *http.Request) {
-	todo := todo.NewToDo()
+	db := db.New()
+	todo := todo.NewToDo(db)
 
 	userId, _ := strconv.Atoi(chi.URLParam(r, "userId"))
-	todo.DeleteUserById(int64(userId))
+	todo.Users.DeleteById(int64(userId))
 	w.Write([]byte("User deleted"))
 }
 
@@ -132,11 +138,13 @@ func DeleteUser(w http.ResponseWriter, r *http.Request) {
 // @Success      201  {object}  todo.Task
 // @Router       /users/{id}/create-task [get]
 func CreateTaskForUser(w http.ResponseWriter, r *http.Request) {
-	// var task mydb.Task
-	task := todo.NewTask()
+	db := db.New()
+	task := todo.Task{}
+	todo := todo.NewToDo(db)
+
 	userId, _ := strconv.Atoi(chi.URLParam(r, "userId"))
 	json.NewDecoder(r.Body).Decode(&task)
 	task.CreatedBy = int64(userId)
-	task.Create()
+	todo.Tasks.Create(&task)
 	json.NewEncoder(w).Encode(task)
 }

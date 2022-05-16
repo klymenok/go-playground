@@ -7,6 +7,7 @@ import (
 
 	"github.com/go-chi/chi/v5"
 
+	"github.com/klymenok/go-playground/internal/db"
   "github.com/klymenok/go-playground/internal/todo"
 )
 
@@ -21,10 +22,11 @@ import (
 // @Success      200  {object}  todo.Comment
 // @Router       /comments/{id} [get]
 func GetComment(w http.ResponseWriter, r *http.Request) {
-	todo := todo.NewToDo()
+	db := db.New()
+	todo := todo.NewToDo(db)
 
 	commentId, _ := strconv.Atoi(chi.URLParam(r, "commentId"))
-	comment, err := todo.GetCommentById(int64(commentId))
+	comment, err := todo.Comments.GetById(int64(commentId))
 	if err != nil {
 		w.WriteHeader(404)
 	} else {
@@ -59,10 +61,12 @@ func GetComments(w http.ResponseWriter, r *http.Request) {
 // @Router       /comments [post]
 func CreateComment(w http.ResponseWriter, r *http.Request) {
 	// TODO add data validation
-	comment := todo.NewComment()
+	db := db.New()
+	comment := todo.Comment{}
+	todo := todo.NewToDo(db)
 
 	json.NewDecoder(r.Body).Decode(&comment)
-	comment.Create()
+	todo.Comments.Create(&comment)
 	json.NewEncoder(w).Encode(comment)
 }
 
@@ -81,15 +85,16 @@ func CreateComment(w http.ResponseWriter, r *http.Request) {
 // @Router       /comments/{id} [put]
 func UpdateComment(w http.ResponseWriter, r *http.Request) {
 	// TODO add data validation
-	todo := todo.NewToDo()
+	db := db.New()
+	todo := todo.NewToDo(db)
 
 	commentId, _ := strconv.Atoi(chi.URLParam(r, "commentId"))
-	comment, err := todo.GetCommentById(int64(commentId))
+	comment, err := todo.Comments.GetById(int64(commentId))
 	if err != nil {
 		w.WriteHeader(404)
 	} else {
 		json.NewDecoder(r.Body).Decode(&comment)
-		comment.Update()
+		todo.Comments.Update(comment)
 		json.NewEncoder(w).Encode(comment)
 	}
 }
@@ -105,9 +110,10 @@ func UpdateComment(w http.ResponseWriter, r *http.Request) {
 // @Success      204
 // @Router       /comments/{id} [delete]
 func DeleteComment(w http.ResponseWriter, r *http.Request) {
-	todo := todo.NewToDo()
+	db := db.New()
+	todo := todo.NewToDo(db)
 
 	commentId, _ := strconv.Atoi(chi.URLParam(r, "commentId"))
-	todo.DeleteCommentById(int64(commentId))
+	todo.Comments.DeleteById(int64(commentId))
 	w.Write([]byte("Comment deleted"))
 }
