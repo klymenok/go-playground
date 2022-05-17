@@ -12,9 +12,13 @@ import (
 	"github.com/klymenok/go-playground/internal/todo"
 )
 
+type UserHandler struct {
+	manager todo.UserManager
+}
+
 // @BasePath /api/v1
 
-// GetUser godoc
+// GetById godoc
 // @Summary  get users
 // @Schemes
 // @Description  get list of all users
@@ -23,12 +27,9 @@ import (
 // @Produce      json
 // @Success      200  {object}  todo.User
 // @Router       /users/{id} [get]
-func GetUser(w http.ResponseWriter, r *http.Request) {
-	db := db.New()
-	todo := todo.NewToDo(db)
-
-	userId, _ := strconv.Atoi(chi.URLParam(r, "userId"))
-	user, err := todo.Users.ById(int64(userId))
+func (handler UserHandler) GetById(w http.ResponseWriter, r *http.Request) {
+	id, _ := strconv.Atoi(chi.URLParam(r, "id"))
+	user, err := handler.manager.GetById(int64(id))
 	log.Println(err)
 	if err != nil {
 		w.WriteHeader(404)
@@ -39,7 +40,7 @@ func GetUser(w http.ResponseWriter, r *http.Request) {
 
 // @BasePath /api/v1
 
-// GetUsers godoc
+// Get godoc
 // @Summary  get users
 // @Schemes
 // @Description  get list of all users
@@ -48,13 +49,13 @@ func GetUser(w http.ResponseWriter, r *http.Request) {
 // @Produce      json
 // @Success      200  {array}  todo.User
 // @Router       /users [get]
-func GetUsers(w http.ResponseWriter, r *http.Request) {
+func (handler UserHandler) Get(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("users"))
 }
 
 // @BasePath /api/v1
 
-// CreateUser godoc
+// Create godoc
 // @Summary  create user
 // @Schemes
 // @Description  create a new user
@@ -65,20 +66,18 @@ func GetUsers(w http.ResponseWriter, r *http.Request) {
 // @Param        last_name   body      string  true  "Last name"
 // @Success      201         {object}  todo.User
 // @Router       /users [post]
-func CreateUser(w http.ResponseWriter, r *http.Request) {
+func (handler UserHandler) Create(w http.ResponseWriter, r *http.Request) {
 	// TODO add data validation
-	db := db.New()
 	user := todo.User{}
-	todo := todo.NewToDo(db)
 
 	json.NewDecoder(r.Body).Decode(&user)
-	todo.Users.Create(&user)
+	handler.manager.Create(&user)
 	json.NewEncoder(w).Encode(user)
 }
 
 // @BasePath /api/v1
 
-// UpdateUser godoc
+// Update godoc
 // @Summary  update user
 // @Schemes
 // @Description  update an existing user
@@ -89,18 +88,16 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 // @Param        last_name   body      string  false  "Last name"
 // @Success      201         {object}  todo.User
 // @Router       /users [put]
-func UpdateUser(w http.ResponseWriter, r *http.Request) {
+func (handler UserHandler) Update(w http.ResponseWriter, r *http.Request) {
 	// TODO add data validation
-	db := db.New()
-	todo := todo.NewToDo(db)
 
 	userId, _ := strconv.Atoi(chi.URLParam(r, "userId"))
-	user, err := todo.Users.ById(int64(userId))
+	user, err := handler.manager.GetById(int64(userId))
 	if err != nil {
 		w.WriteHeader(404)
 	} else {
 		json.NewDecoder(r.Body).Decode(&user)
-		todo.Users.Update(user)
+		handler.manager.Update(user)
 		json.NewEncoder(w).Encode(user)
 	}
 
@@ -108,7 +105,7 @@ func UpdateUser(w http.ResponseWriter, r *http.Request) {
 
 // @BasePath /api/v1
 
-// DeleteUser godoc
+// Delete godoc
 // @Summary  delete user
 // @Schemes
 // @Description  delete an existing user
@@ -117,12 +114,10 @@ func UpdateUser(w http.ResponseWriter, r *http.Request) {
 // @Produce      json
 // @Success      204  string  User  deleted
 // @Router       /users [delete]
-func DeleteUser(w http.ResponseWriter, r *http.Request) {
-	db := db.New()
-	todo := todo.NewToDo(db)
+func (handler UserHandler) Delete(w http.ResponseWriter, r *http.Request) {
 
 	userId, _ := strconv.Atoi(chi.URLParam(r, "userId"))
-	todo.Users.DeleteById(int64(userId))
+	handler.manager.DeleteById(int64(userId))
 	w.Write([]byte("User deleted"))
 }
 
@@ -140,7 +135,7 @@ func DeleteUser(w http.ResponseWriter, r *http.Request) {
 func CreateTaskForUser(w http.ResponseWriter, r *http.Request) {
 	db := db.New()
 	task := todo.Task{}
-	todo := todo.NewToDo(db)
+	todo := todo.NewManager(db)
 
 	userId, _ := strconv.Atoi(chi.URLParam(r, "userId"))
 	json.NewDecoder(r.Body).Decode(&task)

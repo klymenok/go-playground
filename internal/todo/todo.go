@@ -4,16 +4,16 @@ import (
 	"database/sql"
 )
 
-type ToDo struct {
+type Manager struct {
 	Tasks    *tasks
-	Users    *users
+	Users    UserManager
 	Comments *comments
 }
 
-func NewToDo(db *sql.DB) *ToDo {
-	todo := &ToDo{}
-	todo.Tasks = NewTask(db)
-	todo.Users = NewUsers(db)
-	todo.Comments = NewComments(db)
-	return todo
+func NewManager(db *sql.DB) *Manager {
+	manager := &Manager{}
+	manager.Tasks = NewTask(db)
+	manager.Users = NewUsers(db)
+	manager.Comments = NewComments(db)
+	return manager
 }

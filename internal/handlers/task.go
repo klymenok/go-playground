@@ -25,7 +25,7 @@ import (
 // @Router       /tasks/{id} [get]
 func GetTask(w http.ResponseWriter, r *http.Request) {
 	db := db.New()
-	todo := todo.NewToDo(db)
+	todo := todo.NewManager(db)
 
 	taskId, _ := strconv.Atoi(chi.URLParam(r, "taskId"))
 	task, err := todo.Tasks.ById(int64(taskId))
@@ -71,7 +71,7 @@ func CreateTask(w http.ResponseWriter, r *http.Request) {
 	// TODO add data validation
 	db := db.New()
 	task := todo.Task{}
-	todo := todo.NewToDo(db)
+	todo := todo.NewManager(db)
 
 	json.NewDecoder(r.Body).Decode(&task)
 	todo.Tasks.Create(&task)
@@ -98,7 +98,7 @@ func CreateTask(w http.ResponseWriter, r *http.Request) {
 func UpdateTask(w http.ResponseWriter, r *http.Request) {
 	// TODO add data validation
 	db := db.New()
-	todo := todo.NewToDo(db)
+	todo := todo.NewManager(db)
 
 	taskId, _ := strconv.Atoi(chi.URLParam(r, "taskId"))
 	task, err := todo.Tasks.ById(int64(taskId))
@@ -125,7 +125,7 @@ func UpdateTask(w http.ResponseWriter, r *http.Request) {
 // @Router       /tasks/{id}/complete [post]
 func CompleteTask(w http.ResponseWriter, r *http.Request) {
 	db := db.New()
-	todo := todo.NewToDo(db)
+	todo := todo.NewManager(db)
 
 	taskId, _ := strconv.Atoi(chi.URLParam(r, "taskId"))
 	task, err := todo.Tasks.ById(int64(taskId))
@@ -151,7 +151,7 @@ func CompleteTask(w http.ResponseWriter, r *http.Request) {
 // @Router       /users/{id} [delete]
 func DeleteTask(w http.ResponseWriter, r *http.Request) {
 	db := db.New()
-	todo := todo.NewToDo(db)
+	todo := todo.NewManager(db)
 
 	taskId, _ := strconv.Atoi(chi.URLParam(r, "taskId"))
 	todo.Tasks.DeleteById(int64(taskId))
@@ -174,7 +174,7 @@ func CreateCommentForTask(w http.ResponseWriter, r *http.Request) {
 	// TODO add data validation
 	var comment todo.Comment
 	db := db.New()
-	todo := todo.NewToDo(db)
+	todo := todo.NewManager(db)
 
 	taskId, _ := strconv.Atoi(chi.URLParam(r, "taskId"))
 	json.NewDecoder(r.Body).Decode(&comment)

@@ -3,12 +3,23 @@ package handlers
 import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
+	"github.com/klymenok/go-playground/internal/db"
+	"github.com/klymenok/go-playground/internal/todo"
 	httpSwagger "github.com/swaggo/http-swagger"
 	"net/http"
 )
 
+type Handler interface {
+	Get(w http.ResponseWriter, r *http.Request)
+	GetById(w http.ResponseWriter, r *http.Request)
+	Update(w http.ResponseWriter, r *http.Request)
+	Create(w http.ResponseWriter, r *http.Request)
+	Delete(w http.ResponseWriter, r *http.Request)
+}
+
 func Init() http.Handler {
 	r := chi.NewRouter()
+	manager := todo.NewManager(db.New())
 
 	// middlewares
 	r.Use(middleware.SetHeader("Content-Type", "application/json"))
@@ -16,21 +27,25 @@ func Init() http.Handler {
 	// API docs
 	r.Mount("/swagger", httpSwagger.WrapHandler)
 
-	r.Mount("/users/", userRouter())
+	r.Mount("/users/", userRouter(manager))
 	r.Mount("/tasks/", taskRouter())
 	r.Mount("/comments/", commentRouter())
 	return r
 }
 
-func userRouter() http.Handler {
+func initRestEndpoints(router chi.Router, handler Handler) {
+	router.Get("/", handler.Get)
+	router.Get("/{id}", handler.GetById)
+	router.Post("/", handler.Create)
+	router.Put("/{id}", handler.Update)
+	router.Delete("/{id}", handler.Delete)
+}
+
+func userRouter(manager *todo.Manager) http.Handler {
 	userRouter := chi.NewRouter()
 
 	// main endpoints
-	userRouter.Get("/", GetUsers)              // get all users
-	userRouter.Get("/{userId}", GetUser)       // get user by id
-	userRouter.Post("/", CreateUser)           // create new user
-	userRouter.Put("/{userId}", UpdateUser)    // update user
-	userRouter.Delete("/{userId}", DeleteUser) // delete user
+	initRestEndpoints(userRouter, UserHandler{manager.Users})
 
 	// additional endpoints
 	userRouter.Post("/{userId}/create-task", CreateTaskForUser) // create new task for user
