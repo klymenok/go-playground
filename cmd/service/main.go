@@ -6,8 +6,9 @@ import (
 
 	_ "github.com/klymenok/go-playground/docs"
 
+	"github.com/klymenok/go-playground/internal/db"
 	"github.com/klymenok/go-playground/internal/handlers"
-
+	"github.com/klymenok/go-playground/internal/todo"
 )
 
 // colors for console output
@@ -34,7 +35,9 @@ func main() {
 	fmt.Println("Starting web server on port 3333")
 	fmt.Println(GreenColor + "Server started and ready for connections" + ResetColor)
 
-	err := http.ListenAndServe(":3333", handlers.Init())
+	manager := todo.NewManager(db.New())
+
+	err := http.ListenAndServe(":3333", handlers.Init(manager))
 	if err != nil {
 		return
 	}
