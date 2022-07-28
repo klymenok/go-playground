@@ -14,6 +14,13 @@ type User struct {
 	LastName  string `json:"last_name"`
 }
 
+type UserManager interface {
+	Create(user *User)
+	Update(user User)
+	GetById(id int64) (User, error)
+	DeleteById(id int64)
+}
+
 type users struct {
 	db *sql.DB
 }
@@ -42,11 +49,11 @@ func (u *users) Update(user User) {
 	utils.CheckError(err)
 }
 
-func (u *users) ById(userId int64) (User, error) {
+func (u *users) GetById(id int64) (User, error) {
 	var user User
 
 	err := u.db.QueryRow(
-		"select * from user where id=?", userId,
+		"select * from user where id=?", id,
 	).Scan(
 		&user.Id, &user.FirstName, &user.LastName,
 	)
@@ -56,7 +63,7 @@ func (u *users) ById(userId int64) (User, error) {
 	return user, nil
 }
 
-func (u *users) DeleteById(userId int64) {
-	deleteUserQuery := fmt.Sprintf("delete from user where id=%d", userId)
+func (u *users) DeleteById(id int64) {
+	deleteUserQuery := fmt.Sprintf("delete from user where id=%d", id)
 	u.db.Exec(deleteUserQuery)
 }

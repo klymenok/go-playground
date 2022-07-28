@@ -1,14 +1,14 @@
 package handlers
 
 import (
+	"encoding/json"
 	"net/http"
 	"strconv"
-	"encoding/json"
 
 	"github.com/go-chi/chi/v5"
 
 	"github.com/klymenok/go-playground/internal/db"
-  "github.com/klymenok/go-playground/internal/todo"
+	"github.com/klymenok/go-playground/internal/todo"
 )
 
 // GetComment godoc
@@ -23,7 +23,7 @@ import (
 // @Router       /comments/{id} [get]
 func GetComment(w http.ResponseWriter, r *http.Request) {
 	db := db.New()
-	todo := todo.NewToDo(db)
+	todo := todo.NewManager(db)
 
 	commentId, _ := strconv.Atoi(chi.URLParam(r, "commentId"))
 	comment, err := todo.Comments.GetById(int64(commentId))
@@ -63,7 +63,7 @@ func CreateComment(w http.ResponseWriter, r *http.Request) {
 	// TODO add data validation
 	db := db.New()
 	comment := todo.Comment{}
-	todo := todo.NewToDo(db)
+	todo := todo.NewManager(db)
 
 	json.NewDecoder(r.Body).Decode(&comment)
 	todo.Comments.Create(&comment)
@@ -86,7 +86,7 @@ func CreateComment(w http.ResponseWriter, r *http.Request) {
 func UpdateComment(w http.ResponseWriter, r *http.Request) {
 	// TODO add data validation
 	db := db.New()
-	todo := todo.NewToDo(db)
+	todo := todo.NewManager(db)
 
 	commentId, _ := strconv.Atoi(chi.URLParam(r, "commentId"))
 	comment, err := todo.Comments.GetById(int64(commentId))
@@ -111,7 +111,7 @@ func UpdateComment(w http.ResponseWriter, r *http.Request) {
 // @Router       /comments/{id} [delete]
 func DeleteComment(w http.ResponseWriter, r *http.Request) {
 	db := db.New()
-	todo := todo.NewToDo(db)
+	todo := todo.NewManager(db)
 
 	commentId, _ := strconv.Atoi(chi.URLParam(r, "commentId"))
 	todo.Comments.DeleteById(int64(commentId))
