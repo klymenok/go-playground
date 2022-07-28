@@ -3,7 +3,6 @@ package handlers
 import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
-	"github.com/klymenok/go-playground/internal/db"
 	"github.com/klymenok/go-playground/internal/todo"
 	httpSwagger "github.com/swaggo/http-swagger"
 	"net/http"
@@ -17,9 +16,8 @@ type Handler interface {
 	Delete(w http.ResponseWriter, r *http.Request)
 }
 
-func Init() http.Handler {
+func Init(manager *todo.Manager) http.Handler {
 	r := chi.NewRouter()
-	manager := todo.NewManager(db.New())
 
 	// middlewares
 	r.Use(middleware.SetHeader("Content-Type", "application/json"))
